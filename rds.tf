@@ -7,5 +7,7 @@ resource "aws_db_instance" "main" {
   manage_master_user_password = true
   username                    = "admin"
   parameter_group_name        = "default.mysql8.0"
-  identifier = "terraform"
+  identifier                  = "terraform"
+  skip_final_snapshot         = false
+
 }

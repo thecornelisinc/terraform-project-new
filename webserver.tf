@@ -1,44 +1,28 @@
-
-data "aws_ami" "ami" {
-  most_recent      = true
-  owners           = ["amazon"]
- 
-  filter {
-    name   = "name"
-    values = ["al2023-ami-2023.*-x86_64"]
-  }
- 
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
- 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
- 
-}
-resource "aws_instance" "web" {
+module "webserver-1" {
+  source               = "./module/ec2"
+  instance_type        = "t2.micro"
+  device_name          = "/dev/sdf"
+  iam_instance_profile = "NetworkingWorkShopEC2Role"
+  root_volume_size     = 8
+  ebs_volume_size      = 10
+  volume_type          = "gp3"
   subnet_id = aws_subnet.private-1.id
-  ami           = data.aws_ami.ami.image_id
-  instance_type = "t2.micro"
-
-  tags = {
-    Name = "Webserver 1"
-  }
-key_name = "terraform"
-vpc_security_group_ids = [aws_security_group.allow_tls.id]
-root_block_device {
-    volume_size = 8
-    volume_type = "gp3"
-}
-ebs_block_device {
-    device_name = "/dev/sdf"
-    volume_size = 10
-    volume_type = "gp3"
-}
+  security_groups_id = [aws_security_group.allow_tls.id]
 }
 
+output "webserver_id" {
+  value = module.webserver-1.webserver_id
+}
 
+module "webserver-2" {
+  source               = "./module/ec2"
+  instance_type        = "t2.micro"
+  device_name          = "/dev/sdq"
+  iam_instance_profile = "Adminaccecss"
+  root_volume_size     = 8
+  ebs_volume_size      = 100
+  volume_type          = "gp3"
+  subnet_id = "subnet-08b6d0a3e341a30ea"
+  security_groups_id = ["sg-01ff59b119ef42bc3"]
+}
 

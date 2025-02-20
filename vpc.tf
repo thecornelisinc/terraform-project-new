@@ -16,17 +16,17 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_subnet" "public" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.1.0/24"
   availability_zone = "us-east-1a"
   tags = {
     Name = "Terraform_project_Public_sb"
   }
 }
 resource "aws_subnet" "public-2" {
-  vpc_id     = aws_vpc.main.id
+  vpc_id            = aws_vpc.main.id
   availability_zone = "us-east-1c"
-  cidr_block = "10.0.4.0/24"
+  cidr_block        = "10.0.4.0/24"
 
   tags = {
     Name = "Terraform_project_Public_sb-2"
@@ -34,8 +34,8 @@ resource "aws_subnet" "public-2" {
 }
 
 resource "aws_subnet" "private-1" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.2.0/24"
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.2.0/24"
   availability_zone = "us-east-1c"
 
   tags = {
@@ -43,9 +43,9 @@ resource "aws_subnet" "private-1" {
   }
 }
 resource "aws_subnet" "private-2" {
-  vpc_id     = aws_vpc.main.id
+  vpc_id            = aws_vpc.main.id
   availability_zone = "us-east-1a"
-  cidr_block = "10.0.3.0/24"
+  cidr_block        = "10.0.3.0/24"
 
   tags = {
     Name = "Terraform_project_Private_sb-2"
@@ -57,10 +57,10 @@ resource "aws_route_table" "public_SB_RT" {
   vpc_id = aws_vpc.main.id
 
 
- route {
+  route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gw.id
- }
+  }
 
   tags = {
     Name = "Terraform_project_Public_RT"
@@ -113,7 +113,7 @@ resource "aws_route_table_association" "private_rt-Asso-2" {
 }
 
 resource "aws_eip" "lb" {
- domain = "vpc" 
+  domain = "vpc"
 }
 
 
@@ -130,4 +130,17 @@ resource "aws_nat_gateway" "ngw" {
   # To ensure proper ordering, it is recommended to add an explicit dependency
   # on the Internet Gateway for the VPC.
   depends_on = [aws_internet_gateway.gw]
+}
+
+
+resource "aws_route" "natgate_route_pr-sb-1" {
+  route_table_id         = aws_route_table.private_SB_RT-1.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.ngw.id
+}
+
+resource "aws_route" "natgate_route_pr-sb-2" {
+  route_table_id         = aws_route_table.private_SB_RT-2.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.ngw.id
 }
